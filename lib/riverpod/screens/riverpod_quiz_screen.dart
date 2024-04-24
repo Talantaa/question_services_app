@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:sabak_6_1/common/services/questions_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sabak_6_1/common/constants/color/app_color.dart';
-import 'package:sabak_6_1/common/constants/icons/app_icons.dart';
 import 'package:sabak_6_1/common/widgets/buttons/custom_button.dart';
 import 'package:sabak_6_1/common/widgets/dialogs/custom_dialog.dart';
 import 'package:sabak_6_1/common/widgets/dialogs/custom_text.dart';
+import 'package:sabak_6_1/riverpod/probiders/quiz_screen_provider.dart';
 
-class QuizPage extends StatefulWidget {
-  const QuizPage({super.key});
+class RiverpodQuizScreen extends ConsumerStatefulWidget {
+  const RiverpodQuizScreen({super.key});
 
   @override
-  _QuizPageState createState() => _QuizPageState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _RiverpodQuizScreenState();
 }
 
-class _QuizPageState extends State<QuizPage> {
-  List<Widget> icons = [];
-
+class _RiverpodQuizScreenState extends ConsumerState<RiverpodQuizScreen> {
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(quizScreenNotifierProvider);
+
     return Scaffold(
       backgroundColor: AppColor.bgColor,
       body: SafeArea(
@@ -27,12 +28,10 @@ class _QuizPageState extends State<QuizPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              CustomText(text: service.nextQuestion()),
+              CustomText(text: state.question),
               CustomButton(
                 text: 'TRUE',
-                onPressed: () {
-                  _checkAnswer(userAnswer: true);
-                },
+                onPressed: () => _checkAnswer(userAnswer: true),
                 backgroundColor: AppColor.green,
               ),
               CustomButton(
@@ -43,7 +42,7 @@ class _QuizPageState extends State<QuizPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15.0),
                 child: Row(
-                  children: icons,
+                  children: state.icons,
                 ),
               ),
             ],
@@ -54,32 +53,20 @@ class _QuizPageState extends State<QuizPage> {
   }
 
   void _checkAnswer({required bool userAnswer}) {
-    _addIcon(userAnswer: userAnswer, correctAnswer: service.getAnswer());
+    final isOpenDialog = ref
+        .read(quizScreenNotifierProvider.notifier)
+        .checkAnswerAndOpenDialogIfNeeded(userAnswer: userAnswer);
 
-    setState(() {
-      !service.isFinished() ? service.goToNext() : _openDialog();
-    });
-  }
-
-  void _addIcon({
-    required bool userAnswer,
-    required bool correctAnswer,
-  }) {
-    userAnswer == correctAnswer
-        ? icons.add(AppIcons.correctIcon)
-        : icons.add(AppIcons.falseIcon);
+    if (isOpenDialog) _openDialog();
   }
 
   void _openDialog() {
     openDialog(
       context,
       () {
-        service.restart();
-        icons.clear();
+        ref.read(quizScreenNotifierProvider.notifier).restart();
 
         Navigator.of(context).pop();
-
-        setState(() {});
       },
     );
   }
