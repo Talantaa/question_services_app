@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
-import 'package:sabak_6_1/flutter_set_state/screens/quiz_screen.dart';
+import 'package:sabak_6_1/bloc/bloc_approach/bloc/quiz_bloc.dart';
 
 import 'package:sabak_6_1/getx/screens/getx_quiz_screen.dart';
 import 'package:sabak_6_1/riverpod/screens/riverpod_quiz_screen.dart';
 
+import 'bloc/bloc_approach/screens/bloc_quiz_screen.dart';
+
 void main() {
   // runGetxApp();
-  runRiverpodApp();
+  // runRiverpodApp();
+  // runCubitApp();
+
+  // runFlutterApp();
+  runBlocApp();
 }
 
 void runFlutterApp() {
@@ -42,7 +49,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const QuizPage(),
+      home: const BlocQuizScreen(),
     );
   }
 }
@@ -90,7 +97,10 @@ class MyCubitApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const QuizPage(),
+      home: BlocProvider(
+        create: (context) => QuizBloc(),
+        child: const BlocQuizScreen(),
+      ),
     );
   }
 }
@@ -106,7 +116,10 @@ class MyBlocApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const QuizPage(),
+      home: BlocProvider(
+        create: (context) => QuizBloc(),
+        child: const BlocQuizScreen(),
+      ),
     );
   }
 }
